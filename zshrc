@@ -1,6 +1,6 @@
 #       Reid's zsh rice
 
-PROMPT='%F{30}server%F{244} || %F{6}%1d%F{20} » %F{253}'
+PROMPT='%F{30}%m%F{244} || %F{6}%1d%F{20} » %F{253}'
 set -o vi
 
 # general shortcuts
