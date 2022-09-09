@@ -13,7 +13,6 @@ set shiftwidth=4
 
 "    Line Numbers
 set number
-set ruler
 "    Line Numbers Orange
 highlight LineNr ctermfg=darkyellow
 
