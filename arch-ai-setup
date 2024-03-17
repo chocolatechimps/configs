@@ -1,0 +1,130 @@
+#       reids arch setup script
+#               2024
+
+#   clone my rc's
+rcFirstTime(){
+echo -n "Install RC files from github? [y/n]"
+read REPLY
+case $REPLY in
+[Yy])
+    git clone https://github.com/chocolatechimps/configs.git ~/Documents/configs;
+    cp ~/Documents/configs/vimrc ~/.vimrc;
+    cp ~/Documents/configs/zshrc ~/.zshrc;
+    echo "configs enabled successfully";
+    #   use zsh
+    sudo pacman -S zsh;
+    chsh $USER /usr/bin/zsh;
+    echo "zsh enabled. reboot";
+    unset REPLY;
+    exit;
+;;
+[Nn]) echo "Skipping...";;
+*) rcFirstTime ;;
+esac
+unset REPLY
+}
+
+
+#   yay for AUR
+installYay(){
+echo -n "install yay for AUR? [y/n]"
+read $REPLY
+case $REPLY in
+[Yy])
+    sudo pacman -S --needed git base-devel;
+    git clone https://aur.archlinux.org/yay-bin.git ~/Documents/yay-bin;
+    cd ~/Documents/yay-bin; makepkg -si; cd ~; yay;
+    echo "Yay installed";
+;;
+[Nn])
+    echo "Skipping..."
+;;
+*)
+    installYay
+;;
+esac
+unset REPLY
+}
+
+
+
+#   steam if wanted
+installGaming(){
+echo -n "Install Steam and Discord? [y/n]"
+read $REPLY
+case $REPLY in
+[Yy])
+    sudo pacman -S steam discord;
+;;
+[Nn])
+    echo "Skipping...";
+;;
+*)
+    installGaming;
+;;
+esac
+unset REPLY
+}
+
+installConda(){
+echo -n "Install Conda? [y/n]"
+read $REPLY
+case $REPLY in
+[Yy])
+    yay python-conda;
+    echo "name a conda envronment. No special characters. This will run Python3.11";
+    read condaName;
+    echo "Naming: $condaName";
+    conda create --name $condaName python=3.11;
+    conda init zsh;
+    source /usr/etc/profile.d/conda.sh;
+    exit;
+;;
+[Nn])
+    echo "Skipping...";
+;;
+*)
+    installConda;
+;;
+esac
+unset REPLY
+}
+
+installComfyUI(){
+echo "Install ComfyUI? [y/n]"
+read $REPLY
+case $REPLY in
+[Yy])
+    source /usr/etc/profile.d/conda.sh;
+    conda info --env;
+    echo "What conda Env will ComfyUI go into?"
+    read condaName;
+    echo $condaName;
+    git clone https://github.com/Nuked88/ComfyUI-N-Nodes ~/Documents/ComfyUI-N-Nodes;
+    git clone https://github.com/Fannovel16/comfyui_controlnet_aux ~/Documents/comfyui_controlnet_aux;
+    git clone https://github.com/comfyanonymous/ComfyUI.git ~/Documents/ComfyUI;
+    conda run -n $condaName python --version;
+    conda run -n $condaName conda env config vars set HSA_OVERRIDE_GFX_VERSION=11.0.0;
+    conda run -n $condaName --live-stream pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.7;
+# comment out below if having issues. will set rocm version to newest version. comment out above line.
+#    conda run -n $condaName --live-stream pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.0
+    conda run -n $condaName --live-stream pip install -r ~/Documents/ComfyUI-N-Nodes/requirements.txt;
+    conda run -n $condaName --live-stream pip install -r ~/Documents/comfyui_controlnet_aux/requirements.txt;
+    conda run -n $condaName --live-stream pip install -r ~/Documents/ComfyUI/requirements.txt;
+    conda env config vars list
+#    echo "Done!!"
+;;
+[Nn])
+    echo "Skipping...";
+;;
+*)
+    installComfyUI;
+;;
+esac
+unset $REPLY
+}
+rcFirstTime;
+installYay;
+installGaming;
+installConda;
+installComfyUI;
